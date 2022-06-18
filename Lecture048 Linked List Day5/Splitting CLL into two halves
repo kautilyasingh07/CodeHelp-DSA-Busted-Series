@@ -1,0 +1,220 @@
+#include<iostream>
+#include<map>
+using namespace std;
+
+class Node{
+    public:
+        int data;
+        Node* next;
+
+        // Constructor
+        Node(int data){
+            this -> data = data;
+            this -> next = NULL;
+        }
+
+        //Destuctor
+        ~Node(){
+            int value = this -> data;
+
+            while (this -> next != NULL)
+            {
+                delete next;
+                next = NULL;
+            }
+            cout<< "Memory get free for node with data: "<< value <<endl;
+            
+        }
+};
+
+void circularLLinsertion(Node* &tail, int element, int data){
+    // Assuming that the element is present in Linked list
+    
+    // Empty list
+    if(tail == NULL){
+        Node* newNode = new Node(data);
+        tail = newNode;
+        newNode -> next = newNode;
+    }
+    // Non empty list
+    else{
+        Node* curr = tail;
+        
+        while (curr -> data != element){
+            curr = curr -> next;
+        }
+        // After prev step, curr node is on the node where we want to insert new node
+        Node* temp = new Node(data);
+        temp -> next = curr -> next;
+        curr -> next = temp;   
+    }
+}
+
+void print(Node* tail){
+    Node* temp = tail;
+
+    if(tail == NULL){
+        cout<<"List is empty"<<endl;
+        return;
+    }
+
+    do{
+        cout<<tail -> data <<" ";
+        tail = tail -> next;
+    } 
+    while (tail != temp);
+    cout<< endl;
+}
+
+void deleteNode(Node* &tail, int value){
+
+    // Empty list
+    if(tail == NULL){
+        cout<< "The list is empty"<<endl;
+        return;
+    }
+    else{
+        // Non-empty list
+        // Assuming that "value" is present in linked list
+
+        Node* prev = tail;
+        Node* curr = prev -> next;
+
+        while (curr -> data != value){
+            prev = curr;
+            curr = curr -> next;
+        }
+
+        prev -> next = curr -> next;
+
+        // 1 Node Linked List
+        if(curr == prev){
+            tail = NULL;
+        }
+
+        //>=2 linked list
+        else if(tail == curr){
+            tail = prev;
+        }
+        curr -> next = NULL;
+        delete curr;  
+    }
+}
+
+
+bool isCircular(Node* head){
+
+    // Case 1: when list is empty
+    if(head == NULL){
+        return true;
+    }
+    // Case 2: when list have one or more than one node
+    Node* temp = head -> next;
+    while (temp != NULL && temp != head){
+        temp = temp -> next;
+    }
+    if( temp == head){
+        return true;
+    }
+    return false;
+}
+
+bool isCircular2(Node* head){
+
+    if(head == NULL){
+        return false;
+    }
+
+    Node* temp = head;
+    map<Node*, bool> visited;
+
+    while (temp != NULL)
+    {
+        if(visited[temp] == true){
+            cout<<"Cycle is present at: "<< temp-> data<<endl;
+            return true;
+        }
+        visited[temp] = true;
+        temp = temp -> next;
+    }
+    return false;
+}
+
+// H.W:- Split the circular into two equal part
+void splitCLL(Node* head, Node** head1, Node** head2){
+    
+    Node* slow = head;
+    Node* fast = head;
+
+    while(fast -> next != head && fast -> next -> next != head){
+        fast = fast -> next -> next;
+        slow = slow -> next;
+    }
+    // After above steps slow is pointing mid and fast is pointing last node
+    if(fast -> next -> next == head){
+        fast = fast -> next;
+    }
+    // Set the head pointer of first half 
+    *head1 = head;
+
+    // Set the head pointer of second half
+    if (head -> next != head){
+        *head2 = slow -> next;
+    }
+
+    // Make second half circular
+    fast -> next = slow -> next;
+    
+    // Make first half circular
+    slow -> next = head;
+    
+}
+
+int main(){
+
+    Node* tail = NULL;
+    
+    // Insertion in Empty list
+    circularLLinsertion(tail, 1, 3);
+    circularLLinsertion(tail, 3, 5);
+    circularLLinsertion(tail, 5, 7);
+    circularLLinsertion(tail, 7, 9);
+    circularLLinsertion(tail, 9, 11);
+    circularLLinsertion(tail, 11, 13);
+/*
+    circularLLinsertion(tail, 3, 7);
+    print(tail);
+
+    circularLLinsertion(tail, 7, 10);
+    print(tail);
+
+    circularLLinsertion(tail, 7, 9);
+    print(tail);
+*/
+    // deleteNode(tail, 3);
+    // print(tail);
+
+    // if(isCircular(tail)){
+    //     cout<< "Given list is CLL"<<endl;
+    // }
+    // else{
+    //     cout<<"Given list is Not CLL"<<endl;
+    // }
+
+    // if(isCircular2(tail)){
+    //     cout<< "Given list is CLL"<<endl;
+    // }
+    // else{
+    //     cout<<"Given list is Not CLL"<<endl;
+    // }
+
+    Node* head1 = NULL;
+    Node* head2 = NULL;
+    cout<<"Before splitting the CLL"<<endl;
+    print(tail);
+    splitCLL(tail, &head1, &head2);
+    cout<<"After splitting the CLL"<<endl;
+    print(head1);
+    print(head2);
+    return 0;
+}
